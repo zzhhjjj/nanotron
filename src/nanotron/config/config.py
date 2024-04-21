@@ -1,3 +1,4 @@
+import dataclasses
 import datetime
 import os
 from dataclasses import dataclass, fields
@@ -397,8 +398,14 @@ def get_config_from_dict(
             for k, v in config_dict.items()
             if v is not None
         }
+    # test. for compatability
+    Config_no_optimizer = dataclasses.make_dataclass(
+        'Config_no_optimizer',
+        [(f.name, f.type) for f in dataclasses.fields(config_class) if f.name!= 'optimizer']
+    )
     return from_dict(
-        data_class=config_class,
+        data_class=Config_no_optimizer,
+        # data_class=config_class,
         data=config_dict,
         config=dacite.Config(
             cast=[Path],
@@ -410,7 +417,7 @@ def get_config_from_dict(
                 SamplerType: lambda x: SamplerType[x.upper()],
             },
             # strict_unions_match=True,
-            strict=True,
+            strict=False, # for test compatability
         ),
     )
 
